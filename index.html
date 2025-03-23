@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 To‘g‘ri So‘zni Top! 🎯</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #game {
+            width: 90%;
+            max-width: 500px;
+            height: auto;
+            border-radius: 15px;
+            background: white;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        button {
+            margin: 10px;
+            padding: 12px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        #start, #stop, #restart {
+            background-color: #007bff;
+            color: white;
+        }
+        #start:hover, #stop:hover, #restart:hover {
+            background-color: #0056b3;
+        }
+        .correct {
+            background-color: green !important;
+            color: white;
+        }
+        .wrong {
+            background-color: red !important;
+            color: white;
+        }
+        .time-box {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 10px;
+            background: #ffcc00;
+            display: inline-block;
+        }
+        @media (max-width: 600px) {
+            #game {
+                width: 95%;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <h1>🎯 To‘g‘ri So‘zni Top! 🎯</h1>
+        <p id="message">O‘yin boshlash uchun "Start" tugmasini bosing ⏳</p>
+        <button id="start">🚀 Start</button>
+        <div id="question" style="display:none;">
+            <p id="word"></p>
+            <div id="answers"></div>
+        </div>
+        <button id="stop" style="display:none;">⏹ To‘xtatish</button>
+        <button id="restart" style="display:none;">🔄 Qayta o‘ynash</button>
+    </div>
+
+    <script>
+        const words = [
+            {word: "salom", scrambled: "mloas", correct: "salom", options: ["salom", "maslo", "olsam", "smlao"]},
+            {word: "dunyo", scrambled: "nyodu", correct: "dunyo", options: ["dunyo", "yodun", "noduy", "undoy"]},
+            {word: "maktab", scrambled: "tmbaka", correct: "maktab", options: ["maktab", "batmak", "ktbama", "bamtka"]},
+            {word: "kitob", scrambled: "btoki", correct: "kitob", options: ["kitob", "tokib", "botik", "kibto"]},
+            {word: "daryo", scrambled: "oryad", correct: "daryo", options: ["daryo", "royad", "ryoda", "adory"]},
+            {word: "quyon", scrambled: "nyqou", correct: "quyon", options: ["quyon", "yoqun", "quyono", "nyqu"]},
+            {word: "gul", scrambled: "lug", correct: "gul", options: ["gul", "lug", "glu", "ulg"]},
+            {word: "oyna", scrambled: "anyo", correct: "oyna", options: ["oyna", "nayao", "anyon", "onay"]},
+            {word: "quyon", scrambled: "nyqou", "correct": "quyon", "options": ["quyon", "yoqun", "quyono", "nyqu"]},
+            {word: "gul", scrambled: "lug", "correct": "gul", "options": ["gul", "lug", "glu", "ulg"]},
+            {word: "oyna", scrambled: "anyo", "correct": "oyna", "options": ["oyna", "nayao", "anyon", "onay"]},
+            {word: "kitob", scrambled: "bktio", "correct": "kitob", "options": ["kitob", "botik", "kotbi", "tobik"]},
+            {word: "daraxt", scrambled: "rdatxa", "correct": "daraxt", "options": ["daraxt", "tradax", "datrax", "raxdat"]},
+            {word: "yozgi", scrambled: "zgoiy", "correct": "yozgi", "options": ["yozgi", "goziy", "zoygi", "gyozi"]},
+            {word: "qalam", scrambled: "lqmaa", "correct": "qalam", "options": ["qalam", "malqa", "laqam", "qamla"]},
+            {word: "shahar", scrambled: "rhsaha", "correct": "shahar", "options": ["shahar", "harahs", "hasrah", "sahrha"]},
+            {word: "tomosha", scrambled: "mshaoot", "correct": "tomosha", "options": ["tomosha", "sotamoh", "hoosmat", "matosho"]},
+            {word: "do‘st", scrambled: "tdo‘s", "correct": "do‘st", "options": ["do‘st", "stdo‘", "o‘dts", "tsdo‘"]},
+            {word: "daryo", scrambled: "yrdao", "correct": "daryo", "options": ["daryo", "yardo", "oydra", "dryao"]},
+            {word: "bog‘", scrambled: "g‘bo", "correct": "bog‘", "options": ["bog‘", "g‘bo", "o‘bg", "b‘og"]},
+            {word: "narsa", scrambled: "sanar", "correct": "narsa", "options": ["narsa", "sanar", "rasan", "asnar"]},
+            {word: "oyoq", scrambled: "qoyo", "correct": "oyoq", "options": ["oyoq", "qoyo", "yooq", "oqoy"]},
+            {word: "havo", scrambled: "oavh", "correct": "havo", "options": ["havo", "oavh", "voha", "vaho"]},
+            {word: "baliq", scrambled: "qilab", "correct": "baliq", "options": ["baliq", "qilab", "labiq", "ibqal"]},
+            {word: "g‘isht", scrambled: "tshg‘i", "correct": "g‘isht", "options": ["g‘isht", "tshg‘i", "shg‘it", "g‘tish"]},
+            {word: "mehmon", scrambled: "mheonm", "correct": "mehmon", "options": ["mehmon", "mheonm", "monmeh", "homnem"]},
+            {word: "quyosh", scrambled: "syqohu", "correct": "quyosh", "options": ["quyosh", "syqohu", "uyqosh", "oqsyuh"]},
+            {word: "shamol", scrambled: "omlash", "correct": "shamol", "options": ["shamol", "omlash", "lashmo", "moslah"]}
+        ];
+
+        let currentIndex = 0, correctCount = 0, wrongCount = 0, startTime;
+        const message = document.getElementById("message");
+        const startBtn = document.getElementById("start");
+        const stopBtn = document.getElementById("stop");
+        const restartBtn = document.getElementById("restart");
+        const questionDiv = document.getElementById("question");
+        const wordText = document.getElementById("word");
+        const answersDiv = document.getElementById("answers");
+
+        function startGame() {
+            startTime = new Date();
+            correctCount = 0;
+            wrongCount = 0;
+            currentIndex = 0;
+            startBtn.style.display = "none";
+            stopBtn.style.display = "inline-block";
+            restartBtn.style.display = "none";
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentIndex >= words.length) {
+                endGame();
+                return;
+            }
+            questionDiv.style.display = "block";
+            const currentWord = words[currentIndex];
+            wordText.textContent = `🔀 Chalkash so‘z: ${currentWord.scrambled}`;
+            answersDiv.innerHTML = "";
+            currentWord.options.forEach(option => {
+                let btn = document.createElement("button");
+                btn.textContent = option;
+                btn.onclick = () => checkAnswer(btn, option);
+                answersDiv.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(button, answer) {
+            if (answer === words[currentIndex].correct) {
+                correctCount++;
+                button.classList.add("correct");
+                message.textContent = "✅ Yaxshi! To‘g‘ri javob.";
+            } else {
+                wrongCount++;
+                button.classList.add("wrong");
+                message.textContent = "❌ Xato! Qayta urinib ko‘ring.";
+            }
+            currentIndex++;
+            setTimeout(() => {
+                button.classList.remove("correct", "wrong");
+                showQuestion();
+            }, 1000);
+        }
+
+        function endGame() {
+            let endTime = new Date();
+            let timeSpent = ((endTime - startTime) / 1000).toFixed(2);
+            message.innerHTML = `🎉 O‘yin tugadi!<br>
+                ✅ To‘g‘ri javoblar: ${correctCount}<br>
+                ❌ Noto‘g‘ri javoblar: ${wrongCount}<br>
+                ⏳ Sarflangan vaqt: <span class="time-box">${timeSpent} soniya</span>`;
+            stopBtn.style.display = "none";
+            restartBtn.style.display = "inline-block";
+        }
+
+        function stopGame() {
+            currentIndex = words.length;
+            endGame();
+        }
+
+        function restartGame() {
+            message.textContent = "O‘yin boshlash uchun \"Start\" tugmasini bosing ⏳";
+            startBtn.style.display = "inline-block";
+            restartBtn.style.display = "none";
+            questionDiv.style.display = "none";
+        }
+
+        startBtn.onclick = startGame;
+        stopBtn.onclick = stopGame;
+        restartBtn.onclick = restartGame;
+    </script>
+</body>
+</html>
